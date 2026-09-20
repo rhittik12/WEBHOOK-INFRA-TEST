@@ -1,4 +1,4 @@
-import { delay, Queue } from 'bullmq';
+import { Queue } from 'bullmq';
 import IORedis from 'ioredis';
 
 import "dotenv/config";
@@ -18,8 +18,13 @@ const queue = new Queue('my-queue', { connection });
 
 const addJobToQueue = async () => {
     await queue.add('my-job', { jobData: { foo: 'bar' } });
-    await queue.add('my-job', { jobData: { foo: 'bar' } }, {delay: 5000});
+    await queue.add('my-job', { jobData: { bjsvckab: 'bar' } }, { delay: 5000 });
     await queue.add('my-job', { jobData: { logs: 'car' } });
+    await queue.add('my-job', { jobData: { frogs: 'what' } }, { attempts: 3, backoff: { type: 'fixed', delay: 1000 } });
+    await queue.add('my-job', { jobData: { nihssac: 'i ' } });
+    await queue.add('my-job', { jobData: { bbvsahvb: 'dont' } }, { attempts: 3, backoff: { type: 'fixed', delay: 1000 } });
+    await queue.add('my-job', { jobData: { thnjiok: 'think' } });
+    await queue.add('my-job', { jobData: { thankyou: 'so' } }, { attempts: 3, backoff: { type: 'fixed', delay: 1000 } });
 
     await queue.close();
     //removing the connection with redis 
