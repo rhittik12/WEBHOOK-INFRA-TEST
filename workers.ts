@@ -1,30 +1,31 @@
-import { Worker } from "bullmq";
-import IORedis from "ioredis";
+import { connection } from './lib/queue';
+import { Worker } from 'bullmq';
 
-import "dotenv/config";
-
-const redisUrl = process.env.REDIS_URL;
-
-if (!redisUrl) {
-    throw new Error("REDIS_URL is missing");
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const connection = new IORedis(process.env.REDIS_URL!, { maxRetriesPerRequest: null });
+const worker = new Worker('my-queue', async (job) => {
+    console.log(`Started: ${job.name} for ${job.data.imageData}`);
 
-const worker = new Worker('my-queue', async (job: any) => {
-
-    console.log(`Processing job ${job.id} with data:`, job.data);
-
-    if (job.data.jobData.frogs === 'what' || job.data.jobData.bbvsahvb === 'dont') {
-        throw new Error('simulated failure');
+    if (job.name === 'resize') {
+        await sleep(2000);
+        console.log('resizing...');
+    } else if (job.name === 'compress') {
+        await sleep(1000);
+        console.log('compressing...');
+    } else if (job.name === 'generate-thumbnail') {
+        await sleep(500);
+        console.log('generating thumbnail...');
     }
 
+    console.log(`Done: ${job.name}`);
 }, { connection });
 
 worker.on('completed', job => {
-    console.log(`${job.id} has completed!`);
+    console.log(`${job.id} (${job.name}) completed`);
 });
 
-worker.on('failed', job => {
-    console.error(`${job?.id} has failed with error:`);
+worker.on('failed', (job, err) => {
+    console.log(`${job?.id} (${job?.name}) failed:`, err.message);
 });
